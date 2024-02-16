@@ -23,6 +23,7 @@ namespace Components
 		static void Dump(Game::IW3::XAssetType type, Game::IW3::XAssetHeader asset);
 
 		static std::string GetExportPath();
+		static void SetExportPath(const char* path);
 		static std::unordered_map<Game::IW3::XAssetType, Game::IW4::XAssetType> TypeTable;
 
 	private:

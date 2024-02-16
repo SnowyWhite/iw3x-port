@@ -154,6 +154,8 @@ namespace Components
 		{
 			const std::string& exportPath = std::format("{}/{}", basePath, team.iw4name);
 			Utils::CreateDir(exportPath);
+
+			AssetHandler::SetExportPath(exportPath.data());
 			GetApi()->set_work_path(exportPath);
 			GetApi()->clear_writes();
 

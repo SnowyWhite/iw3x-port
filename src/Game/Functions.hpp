@@ -36,6 +36,9 @@ namespace Game
 	extern IW3::XAssetHeader * DB_XAssetPool;
 	extern unsigned int* g_poolSize;
 
+	typedef dvar_s* __cdecl Dvar_RegisterNew_t(const char* name, char type, int flags, const char* description, const void* defaultValue, int y, int z, int w, float min, int max);
+	extern Dvar_RegisterNew_t* Dvar_RegisterNew;
+
 	typedef signed int(*FS_Read_t)(void* buffer, size_t bufferSize, int handle);
 	extern FS_Read_t FS_Read;
 

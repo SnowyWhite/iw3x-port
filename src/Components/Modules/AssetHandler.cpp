@@ -92,6 +92,20 @@ namespace Components
 		return DEFAULT_WORK_DIRECTORY;
 	}
 
+	void AssetHandler::SetExportPath(const char* path)
+	{
+		Game::dvar_s* dvar = Game::Dvar_FindVar("export_path");
+		if (dvar)
+		{
+			dvar->current.string = path;
+		}
+		else
+		{
+			Game::Dvar_RegisterNew("export_path", Game::DVAR_TYPE_STRING, 0, "export path for iw3xport", path, 0, 0, 0, 0, 0);
+		}
+	}
+
+
 	AssetHandler::AssetHandler()
 	{
 		AssetHandler::Register(new IXModel());

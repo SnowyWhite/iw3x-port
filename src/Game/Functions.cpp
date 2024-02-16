@@ -18,6 +18,8 @@ namespace Game
     DB_LoadXAssets_t DB_LoadXAssets = DB_LoadXAssets_t(0x48A2B0);
 	DB_GetXAssetSizeHandler_t* DB_GetXAssetSizeHandlers = reinterpret_cast<DB_GetXAssetSizeHandler_t*>(0x726A10);
 
+	Dvar_RegisterNew_t* Dvar_RegisterNew = reinterpret_cast<Dvar_RegisterNew_t*>(0x56C130);
+
 	IW3::XAssetHeader* DB_XAssetPool = reinterpret_cast<IW3::XAssetHeader*>(0x7265E0);
 	unsigned int* g_poolSize = reinterpret_cast<unsigned int*>(0x7263A0);
 
@@ -274,6 +276,25 @@ namespace Game
 			call eax
 
 			mov [esp + 20h], eax
+			popad
+
+			pop eax
+			retn
+		}
+	}
+
+	__declspec(naked) dvar_s* Dvar_RegisterVariant(const char* /*dvar*/)
+	{
+		__asm
+		{
+			push eax
+			pushad
+
+			mov edi, [esp + 28h]
+			mov eax, 56B5D0h
+			call eax
+
+			mov[esp + 20h], eax
 			popad
 
 			pop eax
