@@ -16,6 +16,7 @@ namespace Components
 		Loader::Register(new QuickPatch());
 		Loader::Register(new AssetHandler());
 		Loader::Register(new MapDumper());
+		Loader::Register(new TeamDumper());
 	}
 
 	void Loader::Uninitialize()

@@ -33,6 +33,7 @@ namespace Components
 #include "Modules/AssetHandler.hpp"
 #include "Modules/GSC.hpp"
 #include "Modules/MapDumper.hpp"
+#include "Modules/TeamDumper.hpp"
 
 #include "Modules/IXModel.hpp"
 #include "Modules/IRawFile.hpp"

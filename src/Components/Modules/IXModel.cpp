@@ -97,7 +97,7 @@ namespace Components
 				}
 
 
-				IW3ModelSurf surf(&model->surfs[xmodel.lodInfo[i].surfIndex], model->lodInfo[i].numsurfs);
+				IW3ModelSurf surf(&model->surfs[xmodel.lodInfo[i].surfIndex], static_cast<std::uint8_t>(model->lodInfo[i].numsurfs));
 
 				if (convertedModelSurfaces.contains(surf))
 				{
@@ -299,12 +299,6 @@ namespace Components
 					-0.997450888f,
 					-0.0f
 				);
-			}
-
-			if (GetIndexOfBone(model, "tag_stowed_hip_le") == UCHAR_MAX)
-			{
-				const auto parent = GetParentOfBone(model, hipTwistLeft);
-				const auto stowedHipLe = InsertBone(model, "tag_stowed_hip_le", parent, LocalAllocator);
 			}
 		}
 

@@ -15,10 +15,8 @@ namespace Components
 		~MapDumper();
 
 	private:
-		static void DumpTeams();
 		static void DumpMap(std::string  mapName);
 		static void DumpLoadedGSCs(std::string mapName, bool isSingleplayer);
-		static void DumpMpTypes(std::ofstream& zoneSource, std::vector<std::string> mpTypes);
 
 		static std::string APIFileRead(const std::string& filename);
 
