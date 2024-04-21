@@ -1508,6 +1508,13 @@ namespace Game::IW4
 		unsigned int intValue;
 	};
 
+	struct SndCurve
+	{
+		const char* filename;
+		unsigned __int16 knotCount;
+		float knots[16][2];
+	};
+
 	struct snd_alias_t
 	{
 		const char* aliasName;
@@ -1530,7 +1537,7 @@ namespace Game::IW4
 		float lfePercentage;
 		float centerPercentage;
 		int startDelay;
-		Game::IW3::SndCurve* volumeFalloffCurve;
+		SndCurve* volumeFalloffCurve;
 		float envelopMin;
 		float envelopMax;
 		float envelopPercentage;
@@ -2226,7 +2233,7 @@ namespace Game::IW4
 		MaterialTechniqueSet* techniqueSet;
 		GfxImage* image;
 		snd_alias_list_t* sound;
-		IW3::SndCurve* sndCurve;
+		SndCurve* sndCurve;
 		IW3::LoadedSound* loadSnd;
 		clipMap_t* clipMap;
 		IW3::ComWorld* comWorld;

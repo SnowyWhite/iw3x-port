@@ -112,7 +112,10 @@ namespace Components
 
 			iw4Alias->volMax = iw3Alias->volMax;
 			iw4Alias->volMin = iw3Alias->volMin;
-			iw4Alias->volumeFalloffCurve = LocalAllocator.Allocate<Game::IW3::SndCurve>();
+			iw4Alias->volumeFalloffCurve = LocalAllocator.Allocate<Game::IW4::SndCurve>();
+			ZeroMemory(iw4Alias->volumeFalloffCurve, sizeof(Game::IW4::SndCurve));
+
+			static_assert(sizeof(Game::IW3::SndCurve) < sizeof(Game::IW4::SndCurve));
 			std::memcpy(iw4Alias->volumeFalloffCurve, iw3Alias->volumeFalloffCurve, sizeof(Game::IW3::SndCurve));
 
 			if (iw4Alias->volumeFalloffCurve && iw4Alias->volumeFalloffCurve->filename)
