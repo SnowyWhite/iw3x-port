@@ -1,4 +1,4 @@
-#include "STDInclude.hpp"
+﻿#include "STDInclude.hpp"
 
 #define IW4X_GAMEWORLD_VERSION 1
 
@@ -66,13 +66,373 @@ namespace Components
   { Game::IW3::IMPACT_TYPE_ROCKET_EXPLODE, Game::IW4::IMPACT_TYPE_ROCKET_EXPLODE },
   { Game::IW3::IMPACT_TYPE_PROJECTILE_DUD, Game::IW4::IMPACT_TYPE_PROJECTILE_DUD }
 	};
+	
+	std::string IWeapon::GetCacCategoryForWeapon(const Game::IW4::WeaponCompleteDef* weapon)
+	{
+		switch (weapon->weapDef->weapClass)
+		{
+		case Game::IW4::WEAPCLASS_MG:
+			return "weapon_lmg";
+
+		case Game::IW4::WEAPCLASS_SNIPER:
+			return "weapon_sniper";
+
+		case Game::IW4::WEAPCLASS_SMG:
+			return "weapon_smg";
+
+		case Game::IW4::WEAPCLASS_RIFLE:
+			return "weapon_assault";
+
+		case Game::IW4::WEAPCLASS_PISTOL:
+			return "weapon_pistol";
+
+		case Game::IW4::WEAPCLASS_SPREAD:
+			return "weapon_shotgun";
+
+		case Game::IW4::WEAPCLASS_ITEM:
+			return "weapon_explosive";
+
+		case Game::IW4::WEAPCLASS_GRENADE:
+			return "weapon_grenade";
+
+		default:
+			return "weapon_other";
+		}
+
+
+	}
+
+	// Column 1 is perk Index
+
+	
+	std::string IWeapon::GetPerkForWeapon(const Game::IW4::WeaponCompleteDef* weapon)
+	{
+		switch (weapon->weapDef->weapClass)
+		{
+		case Game::IW4::WEAPCLASS_MG:
+			return "PERKS_LMG";
+
+
+		case Game::IW4::WEAPCLASS_SNIPER:
+			switch (weapon->weapDef->fireType)
+			{
+			case Game::IW4::WEAPON_FIRETYPE_SINGLESHOT:
+				return "PERKS_SNIPER_BOLT";
+
+			default:
+				return "PERKS_SNIPER_SEMIAUTO";
+			}
+
+			break;
+
+		case Game::IW4::WEAPCLASS_SMG:
+			return "PERKS_SMG";
+
+		case Game::IW4::WEAPCLASS_GRENADE:
+			return "PERKS_ANTIPERSONNEL_DEVICE";
+
+		case Game::IW4::WEAPCLASS_RIFLE:
+			switch (weapon->weapDef->fireType)
+			{
+			case Game::IW4::WEAPON_FIRETYPE_FULLAUTO:
+				return "PERKS_AR_FULLAUTO";
+
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE2:
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE3:
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE4:
+				return "PERKS_AR_THREEROUND";
+
+			default:
+				return "PERKS_AR_SEMIAUTO";
+			}
+			break;
+
+		case Game::IW4::WEAPCLASS_PISTOL:
+			switch (weapon->weapDef->fireType)
+			{
+			case Game::IW4::WEAPON_FIRETYPE_FULLAUTO:
+				return "PERKS_MPISTOL_FULLAUTO";
+
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE2:
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE3:
+			case Game::IW4::WEAPON_FIRETYPE_BURSTFIRE4:
+				return "PERKS_MPISTOL_BURST";
+
+			default:
+				return "PERKS_PISTOL_SEMIAUTO";
+			}
+			break;
+
+		case Game::IW4::WEAPCLASS_SPREAD:
+			switch (weapon->weapDef->fireType)
+			{
+			case Game::IW4::WEAPON_FIRETYPE_FULLAUTO:
+				return "PERKS_SHOTGUN_FULLAUTO";
+
+			case Game::IW4::WEAPON_FIRETYPE_SINGLESHOT:
+				return "PERKS_SHOTGUN_PUMP";
+
+			case Game::IW4::WEAPON_FIRETYPE_DOUBLEBARREL:
+				return "PERKS_SHOTGUN_DOUBLE";
+
+			default:
+				return "PERKS_SHOTGUN_SEMIAUTO";
+			}
+			break;
+
+		default:
+			// Fallback
+			return "PERKS_PISTOL_SEMIAUTO";
+		}
+	}
+
+	 // Could be any number, currently iw4x has 99 entries
+	static int currentStatsTableIndex = 99;
+	
+	std::string IWeapon::GetStatsLine(const std::string& originalName, const Game::IW4::WeaponCompleteDef* weapon)
+	{
+		std::ostringstream stream{};
+		
+		const auto internalName = std::string(weapon->szInternalName);
+		const auto shortName = internalName.ends_with("_mp") ? internalName.substr(0, internalName.size()-3) : internalName;
+		const auto originalShortName = originalName.ends_with("_mp") ? originalName.substr(0, originalName.size()-3) : originalName;
+		currentStatsTableIndex++;
+
+		std::string lines[27]{};
+
+		size_t currentLineIndex = 0;
+
+		lines[currentLineIndex++] = std::to_string(currentStatsTableIndex);
+		lines[currentLineIndex++] = std::to_string(currentStatsTableIndex + 3000); // 🤔
+		lines[currentLineIndex++] = GetCacCategoryForWeapon(weapon);
+		lines[currentLineIndex++] = weapon->szDisplayName;
+		lines[currentLineIndex++] = shortName;
+
+		currentLineIndex++; // 5 is unknown;
+
+		// lines[6] is CAC Material name
+		{
+			const auto matName = "weapon_"+shortName;
+			const auto originalMaterialName = "weapon_"+originalShortName;
+			
+			lines[currentLineIndex++] = matName;
+
+			const auto mat = Game::DB_FindXAssetEntry(Game::IW3::ASSET_TYPE_MATERIAL, originalMaterialName.data());
+			if (mat && mat->entry.asset.header.data)
+			{
+				const auto header = mat->entry.asset.header;
+
+				// rename for dumping and then revert
+				const auto original = header.material->info.name;
+				header.material->info.name = originalMaterialName.data();
+				AssetHandler::Dump(Game::IW3::ASSET_TYPE_MATERIAL, header);
+				header.material->info.name = original;
+			}
+		}
+
+		lines[currentLineIndex++] = GetPerkForWeapon(weapon);
+		
+		// 8 is unknown
+		currentLineIndex++;
+
+		lines[currentLineIndex++] = "weapon_stow_mid_up";
+		
+		// 10 is unknown
+		currentLineIndex++;
+
+		assert(currentLineIndex == 11);
+		const std::string attachments[] = {
+			"gl",
+			"reflex",
+			"silencer",
+			"acog",
+			"fmj",
+			"shotgun",
+			"eotech",
+			"heartbeat",
+			"thermal",
+			"xmags"
+		};
+
+		for (size_t i = 0; i < ARRAYSIZE(attachments); i++)
+		{
+			const auto attachName =  originalName+"_"+attachments[i];
+			const auto header = Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_WEAPON, attachName.data());
+			if(header.data)
+			{
+				lines[currentLineIndex+i] = attachments[i];
+			}
+		}
+
+		// (all attachments processed above)
+		currentLineIndex += ARRAYSIZE(attachments);
+
+		// unknown
+		currentLineIndex++;
+
+		// 40,75,75,55,66
+		const auto stats = GetStatsForWeapon(weapon);
+		
+		for (size_t i = 0; i < stats.size(); i++)
+		{
+			lines[currentLineIndex] = std::to_string(stats[i]);
+			currentLineIndex++;
+		}
+
+		assert(ARRAYSIZE(lines) == currentLineIndex);
+
+		// Write to table
+		for (int i = 0; i < ARRAYSIZE(lines); ++i) {
+			if (i) stream << ',';
+			stream << lines[i];
+		}
+
+		return stream.str();
+	}
+
+	size_t IWeapon::GetMobilityForClass(Game::IW4::weapClass_t clss)
+	{
+		switch(clss)
+		{
+		default:
+			return 80;
+
+		case Game::IW4::WEAPCLASS_SNIPER:
+		case Game::IW4::WEAPCLASS_SMG:
+		case Game::IW4::WEAPCLASS_PISTOL:
+			return 100;
+			
+		case Game::IW4::WEAPCLASS_MG:
+			return 50;
+		}
+	}
+
+	std::array<int, 5> IWeapon::GetStatsForWeapon(const Game::IW4::WeaponCompleteDef* weapon)
+	{
+		// Accuracy, damage, range, firerate, mobility
+		std::array<int, 5> stats = {};
+
+		// Precision:
+		if (weapon->weapDef->weapClass == Game::IW4::WEAPCLASS_SNIPER)
+		{
+			stats[0] = 80 + (weapon->weapDef->fireType == Game::IW4::WEAPON_FIRETYPE_SINGLESHOT ? 10 : 0);
+		}
+		else
+		{
+			stats[0] = 30;
+
+			if (weapon->weapDef->weapClass != Game::IW4::WEAPCLASS_SPREAD)
+			{
+				stats[0] += 30;
+			}
+
+			stats[0] += static_cast<size_t>(20 - (weapon->weapDef->fHipSpreadFireAdd + weapon->weapDef->hipSpreadStandMax));
+		}
+
+		// Damage
+		stats[1] = static_cast<size_t>(
+			weapon->weapDef->damage * 
+			(
+				weapon->weapDef->fireType == Game::IW4::WEAPON_FIRETYPE_SINGLESHOT && weapon->weapDef->weapClass != Game::IW4::WEAPCLASS_SNIPER ?
+				1 : 
+				1.2f
+			)
+		);
+
+		// Range
+		stats[2] = static_cast<size_t>( weapon->weapDef->fMaxDamageRange / 4000.f);
+
+		// Firerate
+		stats[3] = 30;
+		if (weapon->weapDef->fireType == Game::IW4::WEAPON_FIRETYPE_SINGLESHOT)
+		{
+			stats[3] = 10;
+		}
+		else if (weapon->weapDef->fireType == Game::IW4::WEAPON_FIRETYPE_FULLAUTO )
+		{
+			stats[3] += (100 - weapon->iFireTime);
+		}
+
+		stats[4] = GetMobilityForClass(weapon->weapDef->weapClass);
+
+		return stats;
+	}
+
+	void IWeapon::DumpAllWeapons()
+	{
+		//
+		std::unordered_set<std::string> whitelist{
+			"skorpion_mp",
+			"g36c_mp",
+			"mp44_mp",
+			"mp5_mp",
+			"m21_mp",
+			"m40a3_mp",
+			"ak47_mp",
+			"ak74u_mp",
+			"winchester1200_mp",
+			"remington700_mp",
+			"m14_mp",
+			"dragunov_mp",
+			"barrett_mp",
+			"saw_mp",
+			"m4_mp",
+			"m60e4_mp",
+			"m16_mp",
+			"g3_mp",
+			"colt45_mp"
+		};
+		//
+
+		std::vector<std::string> names{};
+
+		Game::DB_EnumXAssetEntries(Game::IW3::XAssetType::ASSET_TYPE_WEAPON, [&](Game::IW3::XAssetEntryPoolEntry* poolEntry) {
+			if (poolEntry)
+			{
+				auto entry = &poolEntry->entry;
+
+				if (whitelist.contains(entry->asset.header.weapon->szInternalName))
+				{
+					names.emplace_back(entry->asset.header.weapon->szInternalName);
+				}
+			}
+			}, false);
+
+		std::ofstream statsTable("statsTable.csv");
+
+		for (const auto& name : names)
+		{
+			Game::IW3::XAssetHeader entry{};
+
+			const auto weaponDef = Utils::Hook::Call<Game::IW3::WeaponDef * (const char*)>(0x41D270)(name.c_str());
+
+			if (weaponDef)
+			{
+				entry.weapon = weaponDef;
+			}
+			else
+			{
+				entry = Game::DB_FindXAssetEntry(Game::IW3::XAssetType::ASSET_TYPE_WEAPON, name.data())->entry.asset.header;
+			}
+
+			auto converted = IWeapon::Convert(entry.weapon);
+
+			const std::string line = GetStatsLine(name, converted);
+			
+			statsTable << line << "\n";
+
+			MapDumper::GetApi()->write(Game::IW4::ASSET_TYPE_WEAPON, converted);
+		}
+
+		statsTable.close();
+	}
 
 	IWeapon::IWeapon()
 	{
 		Command::Add("dumpWeapon", [](Command::Params params)
 			{
 				if (params.Length() < 2) return;
-				
+
 				MapDumper::GetApi()->set_work_path(AssetHandler::GetExportPath());
 
 				Utils::Hook::Call<void()>(0x416430)(); // BG_ClearWeaponDef needs to be called to init playeranimtype
@@ -81,38 +441,7 @@ namespace Components
 
 				if ("*"s == n)
 				{
-					std::vector<std::string> names{};
-
-					Game::DB_EnumXAssetEntries(Game::IW3::XAssetType::ASSET_TYPE_WEAPON, [&](Game::IW3::XAssetEntryPoolEntry* poolEntry) {
-						if (poolEntry)
-						{
-							auto entry = &poolEntry->entry;
-
-							names.emplace_back(entry->asset.header.weapon->szInternalName);
-						}
-						}, false);
-
-					for (const auto& name : names)
-					{
-						Game::IW3::XAssetHeader entry{};
-
-
-						const auto weaponDef = Utils::Hook::Call<Game::IW3::WeaponDef * (const char*)>(0x41D270)(name.c_str());
-
-						if (weaponDef)
-						{
-							entry.weapon = weaponDef;
-						}
-						else
-						{
-							entry = Game::DB_FindXAssetEntry(Game::IW3::XAssetType::ASSET_TYPE_WEAPON, name.data())->entry.asset.header;
-						}
-
-						auto converted = IWeapon::Convert(entry.weapon);
-						MapDumper::GetApi()->write(Game::IW4::ASSET_TYPE_WEAPON, converted);
-
-					}
-
+					DumpAllWeapons();
 					return;
 				}
 
@@ -549,7 +878,7 @@ target->##name = AssetHandler::Convert(Game::IW3::ASSET_TYPE_XMODEL, { asset->##
 		iw4WeaponCompleteDef->weapDef->inheritsPerks = true;
 
 		iw4WeaponCompleteDef->weapDef->szSharedAmmoCapName = asset->szSharedAmmoCapName;
-		
+
 		if (iw4WeaponCompleteDef->weapDef->szSharedAmmoCapName && *iw4WeaponCompleteDef->weapDef->szSharedAmmoCapName)
 		{
 			iw4WeaponCompleteDef->weapDef->szSharedAmmoCapName = LocalAllocator.DuplicateString("IW3_"s + asset->szSharedAmmoCapName);
@@ -564,7 +893,7 @@ target->##name = AssetHandler::Convert(Game::IW3::ASSET_TYPE_XMODEL, { asset->##
 		if (iw4WeaponCompleteDef->weapDef->silenced)
 		{
 			const char* stringPtr = LocalAllocator.DuplicateString("tag_flash_silenced");
-			const auto id = Game::SL_GetStringOfSize(stringPtr, 0, strnlen(stringPtr, 24)+1);
+			const auto id = Game::SL_GetStringOfSize(stringPtr, 0, strnlen(stringPtr, 24) + 1);
 			ReTagSilencedFlash(iw4WeaponCompleteDef, static_cast<unsigned short>(id));
 		}
 

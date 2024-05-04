@@ -18,5 +18,12 @@ namespace Components
 		static Game::IW4::TracerDef* GenerateTracerDef(Game::IW3::WeaponDef* weapon);
 		static void DifferentiateWeapon(Game::IW4::WeaponCompleteDef* weapon);
 		static void DifferentiateModel(Game::IW4::XModel* model);
+		static std::string GetCacCategoryForWeapon(const Game::IW4::WeaponCompleteDef* weapon);
+		static std::string GetPerkForWeapon(const Game::IW4::WeaponCompleteDef* weapon);
+		static std::string GetAttributesLine(const Game::IW4::WeaponCompleteDef* weapon);
+		static std::string GetStatsLine(const std::string& originalName, const Game::IW4::WeaponCompleteDef* weapon);
+		static size_t GetMobilityForClass(Game::IW4::weapClass_t clss);
+		static std::array<int, 5> GetStatsForWeapon(const Game::IW4::WeaponCompleteDef* weapon);
+		static void DumpAllWeapons();
 	};
 }
