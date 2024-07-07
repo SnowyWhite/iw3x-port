@@ -72,6 +72,8 @@ namespace Components
 
 		static Game::IW4::XModel* Convert(Game::IW3::XModel* model);
 
+		static void AddShieldHitLocation(Game::IW4::XModel* model);
+
 		static void AddMissingMultiplayerModelBones(Game::IW4::XModel* model);
 
 		static uint8_t GetIndexOfBone(const Game::IW4::XModel* model, std::string name);

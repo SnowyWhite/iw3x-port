@@ -33,7 +33,7 @@ namespace Components
 		xmodel.materialHandles = LocalAllocator.AllocateArray<Game::IW4::Material*>(model->numsurfs);
 		for (size_t i = 0; i < model->numsurfs; i++)
 		{
-			xmodel.materialHandles[i] = AssetHandler::Convert(Game::IW3::ASSET_TYPE_MATERIAL, { model->materialHandles[i]}).material;
+			xmodel.materialHandles[i] = AssetHandler::Convert(Game::IW3::ASSET_TYPE_MATERIAL, { model->materialHandles[i] }).material;
 		}
 
 		for (uint8_t i = 0; i < model->numLods; ++i)
@@ -84,7 +84,7 @@ namespace Components
 					target->vertListCount = source->vertListCount;
 					target->vertList = source->vertList;
 
-					if (i != xmodel.collLod) 
+					if (i != xmodel.collLod)
 					{
 						for (size_t k = 0; k < target->vertListCount; k++)
 						{
@@ -181,7 +181,7 @@ namespace Components
 
 				std::memcpy(target, source, sizeof(Game::IW4::PhysGeomInfo)); // This is ok: IW3 already has "bounds" the way iw4 has, for this struct precisely
 
-				if (source->type >= 4) 
+				if (source->type >= 4)
 				{
 					// We're going from
 					/*
@@ -192,9 +192,9 @@ namespace Components
 						PHYS_GEOM_CYLINDER = 0x4,
 						PHYS_GEOM_CAPSULE = 0x5,
 							PHYS_GEOM_COUNT = 0x6,
-					
+
 					to
-					
+
 						PHYS_GEOM_NONE = 0x0,
 						PHYS_GEOM_BOX = 0x1,
 						PHYS_GEOM_BRUSHMODEL = 0x2,
@@ -206,11 +206,11 @@ namespace Components
 							PHYS_GEOM_COUNT = 0x8,
 					*/
 
-					target->type += 1; 
+					target->type += 1;
 
 					Components::Logger::Print("Translated physGeomType %i into %i (geom %i from model %s)\n", source->type, target->type, i, model->name);
 
-					if (source->type >= 0x6) 
+					if (source->type >= 0x6)
 					{
 						Components::Logger::Error("Unexpected geom type %i (geom %i from model %s)\n", source->type, i, model->name);
 					}
@@ -262,13 +262,35 @@ namespace Components
 			// The error may lie in the above codeblock, or in zonebuilder's reading of physcollmaps.
 			xmodel.physCollmap = nullptr;
 		}
-		
+
 		AddMissingMultiplayerModelBones(&xmodel);
+		AddShieldHitLocation(&xmodel);
 
 		auto xmodelPtr = LocalAllocator.Allocate<Game::IW4::XModel>();
 		*xmodelPtr = xmodel;
 
 		return xmodelPtr;
+	}
+
+	void IXModel::AddShieldHitLocation(Game::IW4::XModel* model)
+	{
+		constexpr unsigned char HITLOC_SHIELD = 0x13;
+
+		{
+			const auto tagWeaponLeft = GetIndexOfBone(model, "tag_weapon_left");
+			if (tagWeaponLeft != UCHAR_MAX)
+			{
+				model->partClassification[tagWeaponLeft] = HITLOC_SHIELD;
+			}
+		}
+
+		{
+			const auto shieldBack = GetIndexOfBone(model, "tag_shield_back");
+			if (shieldBack != UCHAR_MAX)
+			{
+				model->partClassification[shieldBack] = HITLOC_SHIELD;
+			}
+		}
 	}
 
 	void IXModel::AddMissingMultiplayerModelBones(Game::IW4::XModel* model)
@@ -579,7 +601,7 @@ namespace Components
 
 		// Insert new bone
 		{
-			unsigned int name = Game::SL_GetStringOfSize(boneName.data(), 0, boneName.size()+1);
+			unsigned int name = Game::SL_GetStringOfSize(boneName.data(), 0, boneName.size() + 1);
 			Game::IW4::XBoneInfo boneInfo{};
 
 			Game::IW3::DObjAnimMat mat{};
@@ -823,7 +845,7 @@ namespace Components
 								names.emplace_back(entry->asset.header.model->name);
 							}
 						}
-					}, false);
+						}, false);
 
 					for (const auto& name : names)
 					{
