@@ -40,7 +40,7 @@
 #define COD4
 
 #define EXTEND_CULLING 1
-#define MAP_SUN_TO_LIGHT 1
+#define LITTERALIZE_SUN 1
 #define DEFAULT_WORK_DIRECTORY "iw3xport_out/default";
 
 // Usefull for debugging

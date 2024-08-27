@@ -365,27 +365,19 @@ namespace Components
 
 					// Litteralize
 					if (
-						//iw3Index == Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_POSITION || 
-						iw3Index == Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_DIFFUSE)
+						iw3Index == Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_DIFFUSE || 
+						iw3Index == Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_SPECULAR)
 					{
 						const auto mapName = MapDumper::GetMapName();
-						Game::IW3::GfxLight* light = nullptr;
 						bool overrideLight = false;
+						float lightColor[3]{};
 
 						if (mapName.empty())
 						{
-#if !MAP_SUN_TO_LIGHT
-							Game::IW3::GfxLight backupLight{};
-
-							backupLight.dir[0] = 0.5773502691896257f;
-							backupLight.dir[1] = 0.5773502691896257f;
-							backupLight.dir[2] = -0.5773502691896257f;
-
-							backupLight.color[0] = 255.F / 255.F;
-							backupLight.color[1] = 243.F / 255.F;
-							backupLight.color[2] = 224.F / 255.F;
-
-							light = &backupLight;
+#if LITTERALIZE_SUN
+							lightColor[0] = 255.F / 255.F;
+							lightColor[1] = 243.F / 255.F;
+							lightColor[2] = 224.F / 255.F;
 
 							overrideLight = true;
 #endif
@@ -402,12 +394,16 @@ namespace Components
 							if (iw3World && iw3World->sunLight)
 							{
 
-								light = iw3World->sunLight;
+								Game::IW3::GfxLight* light = iw3World->sunLight;
+								lightColor[0] = light->color[0];
+								lightColor[1] = light->color[1];
+								lightColor[2] = light->color[2];
+
 								overrideLight = true;
 							}
 							else
 							{
-#if !MAP_SUN_TO_LIGHT
+#if LITTERALIZE_SUN
 								Logger::Print("Invalid world or no light found for sun litteralization\n");
 #endif
 							}
@@ -422,18 +418,32 @@ namespace Components
 							switch (iw3Index)
 							{
 							case Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_POSITION:
-								// Wild guess
-								iw4Arg->u.literalConst[0] = -light->dir[0];
-								iw4Arg->u.literalConst[1] = -light->dir[1];
-								iw4Arg->u.literalConst[2] = -light->dir[2];
+								// SUN_POSITION cannot be litteralized because it relies on EYE_OFFSET!
+								// It is computed dynamically by IW3/IW4 every frame in "R_SetLightProperties"
+								// Therefore we must resort to invalid values
+								
+								//iw4Arg->u.literalConst[0] = -light->dir[0];
+								//iw4Arg->u.literalConst[1] = -light->dir[1];
+								//iw4Arg->u.literalConst[2] = -light->dir[2];
 
-								iw4Arg->u.literalConst[3] = 0.f;
+								//iw4Arg->u.literalConst[3] = 0.f;
 								break;
 
 							case Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_DIFFUSE:
 								// Not gamma corrected. TODO use IW4's comworld instead, post conv
-								std::memcpy(iw4Arg->u.literalConst, light->color, (sizeof(float)) * 3);
+								std::memcpy(iw4Arg->u.literalConst, lightColor, (sizeof(float)) * 3);
 								iw4Arg->u.literalConst[3] = 0.f;
+								break;
+
+							case Game::IW3::ShaderCodeConstants::CONST_SRC_CODE_SUN_SPECULAR:
+								// Not gamma corrected. TODO
+								std::memcpy(iw4Arg->u.literalConst, lightColor, (sizeof(float)) * 3);
+								iw4Arg->u.literalConst[3] = 0.f;
+
+								// Specular is a bit more powerful on iw3
+								iw4Arg->u.literalConst[0] *= 2.5f;
+								iw4Arg->u.literalConst[1] *= 2.5f;
+								iw4Arg->u.literalConst[2] *= 2.5f;
 								break;
 							}
 						}
