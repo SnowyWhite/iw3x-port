@@ -592,6 +592,7 @@ namespace Components
 				// Check out 0x62EFF0 (iw3) 
 				// and 0x524C80 (iw4)
 				// (R_SetStaticModelLighting)
+
 				map.dpvs.smodelInsts[i].lightingOrigin[0] = map.dpvs.smodelInsts[i].bounds.midPoint[0];
 				map.dpvs.smodelInsts[i].lightingOrigin[1] = map.dpvs.smodelInsts[i].bounds.midPoint[1];
 				map.dpvs.smodelInsts[i].lightingOrigin[2] = map.dpvs.smodelInsts[i].bounds.midPoint[2];
@@ -677,8 +678,19 @@ namespace Components
 
 					//// Grass needs 0x20 otherwise it doesn't read data from the lightmap and it's full bright !
 					//// Whenever a model needs ground lighting in iw4, it has to specify it
+					// 0x20 (it's included in R_SetModelGroundLighting in IW4)
 					if (map.dpvs.smodelDrawInsts[i].groundLighting.packed > 0)
 					{
+						// Don't ask me why, but ground lighting in iw3 is in BGRA format
+						// This is verifiable on mp_bloc, but i didn't manage to find the code that performs swapping
+						// It's not done in shader, so it has to be something else. who knows!
+						{
+							const auto r = map.dpvs.smodelDrawInsts[i].groundLighting.array[2];
+							const auto  b = map.dpvs.smodelDrawInsts[i].groundLighting.array[0];
+							map.dpvs.smodelDrawInsts[i].groundLighting.array[0] = r;
+							map.dpvs.smodelDrawInsts[i].groundLighting.array[2] = b;
+						}
+
 						map.dpvs.smodelDrawInsts[i].flags |= Game::IW4::STATIC_MODEL_FLAG_GROUND_LIGHTING;
 					}
 				}

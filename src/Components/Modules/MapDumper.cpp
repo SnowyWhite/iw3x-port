@@ -144,6 +144,7 @@ namespace Components
 
 		MapDumper::DumpLoadedGSCs(mapToDump, isSingleplayer);
 
+
 		if (myZoneIndex < 32)
 		{
 			Logger::Print("Exporting FXs...\n");
@@ -165,7 +166,7 @@ namespace Components
 	{
 		Logger::Print("Exporting environment GSCs...\n");
 		Command::Execute(Utils::VA("dumpRawFile maps/%s%s.gsc", isSingleplayer ? "" : "mp/", mapToDump.data()), true);
-		Command::Execute(Utils::VA("dumpRawFile maps/%s%s_fx.gsc", mapToDump.data()), true);
+		Command::Execute(Utils::VA("dumpRawFile maps/%s%s_fx.gsc", isSingleplayer ? "" : "mp/", mapToDump.data(), mapToDump.data()), true);
 		Command::Execute(Utils::VA("dumpRawFile maps/createfx/%s_fx.gsc", mapToDump.data()), true);
 
 		Command::Execute(Utils::VA("dumpRawFile maps/createart/%s_art.gsc", mapToDump.data()), true);
@@ -174,9 +175,9 @@ namespace Components
 		if (convertGsc && convertGsc->current.string == "1"s) {
 			Logger::Print("Patching GSCs...\n");
 			GSC::UpgradeGSC(Utils::VA("%s/maps/createfx/%s_fx.gsc", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertFXGSC);
-			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s_fx.gsc", isSingleplayer ? "" : "mp/", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertMainFXGSC);
+			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s_fx.gsc", AssetHandler::GetExportPath().data(), isSingleplayer ? "" : "mp/", mapToDump.data()), GSC::ConvertMainFXGSC);
 			GSC::UpgradeGSC(Utils::VA("%s/maps/createart/%s_art.gsc", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertMainArtGSC);
-			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s.gsc", isSingleplayer ? "" : "mp/", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertMainGSC);
+			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s.gsc", AssetHandler::GetExportPath().data(), isSingleplayer ? "" : "mp/",  mapToDump.data()), GSC::ConvertMainGSC);
 		}
 	}
 
