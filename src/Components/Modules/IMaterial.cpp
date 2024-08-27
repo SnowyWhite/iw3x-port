@@ -7,8 +7,8 @@ namespace Components
 	std::unordered_map<char, Game::IW4::Material> IMaterial::exampleMaterialForKey{};
 	std::unordered_map<char, char> IMaterial::sortKeysTable = {
 		{0, 43},	// Distortion
-					// Opaque water (never used)
-					// Boat hull (never used)
+		// Opaque water (never used)
+		// Boat hull (never used)
 		{3, 0},		// Opaque ambient
 		{4, 1},		// Opaque
 		{5, 2},		// Sky
@@ -50,7 +50,7 @@ namespace Components
 	{
 		if (!material)  return nullptr;
 
-        Game::IW4::GfxDrawSurf newSurf;
+		Game::IW4::GfxDrawSurf newSurf;
 
 		Game::IW4::Material mat;
 		ZeroMemory(&mat, sizeof mat);
@@ -68,21 +68,21 @@ namespace Components
 		mat.sortKey = GetConvertedSortKey(material);
 #endif
 
-		mat.textureAtlasRowCount    = material->info.textureAtlasRowCount;
+		mat.textureAtlasRowCount = material->info.textureAtlasRowCount;
 		mat.textureAtlasColumnCount = material->info.textureAtlasColumnCount;
 
-        newSurf.fields.objectId = material->info.drawSurf.fields.objectId;
-        newSurf.fields.reflectionProbeIndex = material->info.drawSurf.fields.reflectionProbeIndex;
-        newSurf.fields.customIndex = material->info.drawSurf.fields.customIndex;
-        newSurf.fields.materialSortedIndex = material->info.drawSurf.fields.materialSortedIndex;
-        newSurf.fields.prepass = material->info.drawSurf.fields.prepass;
-        newSurf.fields.sceneLightIndex = material->info.drawSurf.fields.primaryLightIndex;
-        newSurf.fields.surfType = material->info.drawSurf.fields.surfType;
-        newSurf.fields.primarySortKey = material->info.drawSurf.fields.primarySortKey;
-        mat.drawSurf.packed = newSurf.packed;
+		newSurf.fields.objectId = material->info.drawSurf.fields.objectId;
+		newSurf.fields.reflectionProbeIndex = material->info.drawSurf.fields.reflectionProbeIndex;
+		newSurf.fields.customIndex = material->info.drawSurf.fields.customIndex;
+		newSurf.fields.materialSortedIndex = material->info.drawSurf.fields.materialSortedIndex;
+		newSurf.fields.prepass = material->info.drawSurf.fields.prepass;
+		newSurf.fields.sceneLightIndex = material->info.drawSurf.fields.primaryLightIndex;
+		newSurf.fields.surfType = material->info.drawSurf.fields.surfType;
+		newSurf.fields.primarySortKey = material->info.drawSurf.fields.primarySortKey;
+		mat.drawSurf.packed = newSurf.packed;
 
-		mat.surfaceTypeBits         = material->info.surfaceTypeBits;
-		mat.hashIndex               = material->info.hashIndex;
+		mat.surfaceTypeBits = material->info.surfaceTypeBits;
+		mat.hashIndex = material->info.hashIndex;
 
 		// Set them all to -1 so they're not used if they dont exist in iw3
 		std::memset(mat.stateBitsEntry, 0xFF, sizeof(mat.stateBitsEntry));
@@ -102,8 +102,8 @@ namespace Components
 			}
 		}
 
-		mat.textureCount   = material->textureCount;
-		mat.constantCount  = material->constantCount;
+		mat.textureCount = material->textureCount;
+		mat.constantCount = material->constantCount;
 		mat.stateBitsCount = material->stateBitsCount;
 		mat.stateFlags = static_cast<Game::IW4::StateFlags>(material->stateFlags); // Correspondance is identical
 
@@ -114,7 +114,7 @@ namespace Components
 		}
 
 		// Should we give ambient stateflag to everybody by default?
-		mat.cameraRegion   = material->cameraRegion;
+		mat.cameraRegion = material->cameraRegion;
 
 		if (mat.cameraRegion == 0x3) {
 			// 0x3 is NONE in iw3, but DEPTH_HACK in iw4
@@ -193,15 +193,15 @@ namespace Components
 				}
 				else if (targetDef->name == "waterColor"s)
 				{
-						targetDef->literal[0] *= 0.25f; // envMapMin
-						targetDef->literal[1] *= 0.25f;  // envMapMax
-						targetDef->literal[2] *= 0.25f;    // engMapExponent
-						targetDef->literal[3] *= 0.25f;    // envMapIntensity
+					targetDef->literal[0] *= 0.25f; // envMapMin
+					targetDef->literal[1] *= 0.25f;  // envMapMax
+					targetDef->literal[2] *= 0.25f;    // engMapExponent
+					targetDef->literal[3] *= 0.25f;    // envMapIntensity
 				}
 			}
 		}
 
-		mat.stateBitTable  = material->stateBitsTable;
+		mat.stateBitTable = material->stateBitsTable;
 
 		// Glass
 		// this part is like, totally unnecessary. I thought it fixed an issue on broadcast
@@ -242,7 +242,7 @@ namespace Components
 		const std::string& name = material->info.name;
 		const std::string& techsetName = material->techniqueSet->name;
 
-		if (iw3Key == 4) 
+		if (iw3Key == 4)
 		{
 			// This takes care of two building facades
 			if (techsetName.contains("ambient"s))
@@ -295,7 +295,7 @@ namespace Components
 			// But there is no difference between sign 02 01 and 03, and they're all
 			// on sortkey 6 except 02! which is on sortkey 10
 			// Who can tell why?
-			if (name == "me_signs_02"s) 
+			if (name == "me_signs_02"s)
 			{
 				Logger::Print("Material %s was given sortkey %i from %i (exceptional)\n", name.data(), 10, iw3Key);
 				return 10;
@@ -342,7 +342,7 @@ namespace Components
 				 - mp_vacant:wc\ch_rubble_conc01_decal.json
 			 - 0 (1 matches)
 				 - mp_overgrown:mc\mtl_red_pine_canopy.json
-			
+
 			*/
 		}
 
@@ -388,6 +388,12 @@ namespace Components
 				//"blend / additive" => SORTKEY_BLEND_ADDITIVE
 				Logger::Print("Material %s was given sortkey %i from %i (2d)\n", name.data(), 47, iw3Key);
 				return 47;
+			}
+
+			if (name.contains("shadow_caster") || name.contains("shadowcaster") || techsetName.contains("_shadowcaster"))
+			{
+				Logger::Print("Material %s was given sortkey %i from %i (contains 'shadow caster' in the name, likely shadowcaster)\n", name.data(), 34, iw3Key);
+				return 34;
 			}
 
 			if (techsetName.contains("effect") && name.contains("gfx"))
@@ -466,7 +472,7 @@ namespace Components
 
 		if (iw3Key == 59)
 		{
-		// Could be 53, but also...
+			// Could be 53, but also...
 			if (material->techniqueSet->techniques[Game::IW3::TECHNIQUE_LIT])
 			{
 				// mtl_fx_shell_alpha
@@ -524,7 +530,7 @@ namespace Components
 				return true;
 			}
 		}
-			
+
 
 		return false;
 	}
@@ -532,11 +538,11 @@ namespace Components
 	IMaterial::IMaterial()
 	{
 		Command::Add("dumpMaterial", [](const Command::Params& params)
-		{
-			if (params.Length() < 2) return;
-			auto asset = IMaterial::Convert(Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_MATERIAL, params[1]).material);
-			MapDumper::GetApi()->write(Game::IW4::XAssetType::ASSET_TYPE_MATERIAL, asset);
-		});
+			{
+				if (params.Length() < 2) return;
+				auto asset = IMaterial::Convert(Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_MATERIAL, params[1]).material);
+				MapDumper::GetApi()->write(Game::IW4::XAssetType::ASSET_TYPE_MATERIAL, asset);
+			});
 	}
 
 	IMaterial::~IMaterial()
