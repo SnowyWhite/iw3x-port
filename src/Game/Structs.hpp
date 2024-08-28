@@ -3185,6 +3185,66 @@ namespace IW3
 		float adsDofEnd;
 	};
 
+	struct CachedAssets_t
+	{
+		Material* scrollBarArrowUp;
+		Material* scrollBarArrowDown;
+		Material* scrollBarArrowLeft;
+		Material* scrollBarArrowRight;
+		Material* scrollBar;
+		Material* scrollBarThumb;
+		Material* sliderBar;
+		Material* sliderThumb;
+		Material* whiteMaterial;
+		Material* cursor;
+		/*Font_s* */ void* bigFont;
+		/*Font_s* */ void* smallFont;
+		/*Font_s* */ void* consoleFont;
+		/*Font_s* */ void* boldFont;
+		/*Font_s* */ void* textFont;
+		/*Font_s* */ void* extraBigFont;
+		/*Font_s* */ void* objectiveFont;
+		snd_alias_list_t* itemFocusSound;
+	};
+
+	struct gameTypeInfo
+	{
+		const char* gameType;
+		const char* gameTypeName;
+	};
+
+	struct mapInfo
+	{
+		const char* mapName;
+		const char* mapLoadName;
+		const char* imageName;
+		const char* opponentName;
+		int teamMembers;
+		int typeBits;
+		int timeToBeat[32];
+		Material* levelShot;
+		int active;
+	};
+
+	struct sharedUiInfo_t
+	{
+		CachedAssets_t assets;
+		int playerCount;
+		char playerNames[64][32];
+		char teamNames[64][32];
+		int playerClientNums[64];
+		int numGameTypes;
+		gameTypeInfo gameTypes[32];
+		int numCustomGameTypes;
+		gameTypeInfo customGameTypes[32];
+		char customGameTypeCancelState[2048];
+		int numJoinGameTypes;
+		gameTypeInfo joinGameTypes[32];
+		int mapCount;
+		mapInfo mapList[128];
+		// ... and more stuff
+	};
+
 	union XAssetHeader
 	{
 		void* data;

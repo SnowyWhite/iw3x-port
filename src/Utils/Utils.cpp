@@ -19,6 +19,12 @@ namespace Utils
 		return dest;
 	}
 
+	std::string StrToUpper(std::string input)
+	{
+		std::transform(input.begin(), input.end(), input.begin(), ::toupper);
+		return input;
+	}
+
 	std::string StrToLower(std::string input)
 	{
 		std::transform(input.begin(), input.end(), input.begin(), ::tolower);

@@ -142,6 +142,8 @@ namespace Components
 		Logger::Print("Exporting Loadscreen...\n");
 		Command::Execute(Utils::VA("dumpMaterial $levelbriefing"), true);
 
+		MapDumper::CreateArenaFile(mapToDump, isSingleplayer);
+
 		MapDumper::DumpLoadedGSCs(mapToDump, isSingleplayer);
 
 
@@ -177,7 +179,122 @@ namespace Components
 			GSC::UpgradeGSC(Utils::VA("%s/maps/createfx/%s_fx.gsc", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertFXGSC);
 			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s_fx.gsc", AssetHandler::GetExportPath().data(), isSingleplayer ? "" : "mp/", mapToDump.data()), GSC::ConvertMainFXGSC);
 			GSC::UpgradeGSC(Utils::VA("%s/maps/createart/%s_art.gsc", AssetHandler::GetExportPath().data(), mapToDump.data()), GSC::ConvertMainArtGSC);
-			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s.gsc", AssetHandler::GetExportPath().data(), isSingleplayer ? "" : "mp/",  mapToDump.data()), GSC::ConvertMainGSC);
+			GSC::UpgradeGSC(Utils::VA("%s/maps/%s%s.gsc", AssetHandler::GetExportPath().data(), isSingleplayer ? "" : "mp/", mapToDump.data()), GSC::ConvertMainGSC);
+		}
+	}
+
+	void MapDumper::CreateArenaFile(std::string map, bool isSingleplayer)
+	{
+		// We could iterate on cod2MapsArena here using sharedUiInfo_t
+		// But it's not useful - every single iw3 map entry here is very predictable
+		//	and custom maps don't come with their arena files like in iw4
+
+		auto stream = std::ofstream(std::format("{}/{}.arena", AssetHandler::GetExportPath(), map), std::ios::out | std::ios::trunc | std::ios_base::binary);
+		if (stream.is_open())
+		{
+			stream << "{";
+			stream << "\n\tmap\t\"" << map << "\"";
+
+			const auto mpUiName = std::regex_replace(map, std::regex("mp_"), "MPUI_");
+			stream << "\n\tlongname\t\"" << Utils::StrToUpper(mpUiName) << "\"";
+
+			// Base CoD4 gamemodes (the truly supported gamemodes are unknowable on CoD4 custom maps)
+			stream << "\n\tgametype\t\"dm war sab sab2 dom sd sd2 hc thc ctf koth\"";
+
+			const auto description = std::regex_replace(map, std::regex("mp_"), "MPUI_DESC_MAP_");
+			stream << "\n\tdescription\t\"" << Utils::StrToUpper(description) << "\"";
+
+			const auto preview = "preview_" + map;
+			stream << "\n\tmapimage\t\"" << Utils::StrToLower(preview) << "\"";
+
+			std::string environment = "woodland";
+			std::string alliesChar = "iw3_usmc_woodland";
+			std::string axisChar = "iw3_spetsnaz_woodland";
+
+			{
+				const auto header = Game::DB_FindXAssetHeader(Game::IW3::ASSET_TYPE_RAWFILE, Utils::VA("maps/%s%s.gsc", isSingleplayer ? "" : "mp/", map.data()));
+				if (header.data) {
+					
+					const std::string rawfile = std::string(header.rawfile->buffer, header.rawfile->len);
+					const auto getFromGsc = [&](const std::string& info)
+						{
+							const std::regex expression(std::format("\\[\"{}\"\\] *= *\"(.*)\"", info));
+							std::smatch m;
+
+							if (std::regex_search(rawfile, m, expression))
+							{
+								if (m.size() > 1)
+								{
+									return m[1].str();
+								}
+							}
+
+							return std::string();
+						};
+
+					const auto allies = getFromGsc("allies");
+					const auto axis = getFromGsc("axis");
+					const auto env = getFromGsc("allies_soldiertype");
+					
+					if (!env.empty())
+					{
+						environment = env;
+					}
+
+					const auto parseTeam = [](const std::string& environment, const std::string& iw3TeamName, const std::string& defaultTeamName) {
+						// Only some combinations are supported (should cover most if not all vanilla maps)
+						if (environment == "woodland")
+						{
+							if (iw3TeamName == "sas")
+							{
+								return "iw3_sas_woodland";
+							}
+
+							if (iw3TeamName == "russian")
+							{
+								return "iw3_spetsnaz_woodland";
+							}
+						}
+						else if (environment == "desert")
+						{
+							if (iw3TeamName == "marines")
+							{
+								return "iw3_usmc_desert";
+							}
+
+							if (iw3TeamName == "opfor")
+							{
+								return "iw3_opfor_desert";
+							}
+						}
+						else if (environment == "urban")
+						{
+							if (iw3TeamName == "sas")
+							{
+								return "iw3_sas_urban";
+							}
+
+							if (iw3TeamName == "russian")
+							{
+								return "iw3_spetsnaz_urban";
+							}
+						}
+
+						return defaultTeamName.data();
+					};
+
+					alliesChar = parseTeam(environment, allies, alliesChar);
+					axisChar = parseTeam(environment, axis, axisChar);
+				}
+			}
+
+			stream << "\n\tallieschar\t\"" << alliesChar << "\"";
+			stream << "\n\taxischar\t\"" << axisChar << "\"";
+			stream << "\n\tenvironment\t\"iw3\""; // Always write "iw3" as environment - this allows iw4 to pick correctly between ghillies and urban sniper models
+
+			stream << "\n\tmapoverlay\t\"compass_overlay_map_blank\"";
+
+			stream << "\n}\n";
 		}
 	}
 

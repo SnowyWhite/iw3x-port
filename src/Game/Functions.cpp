@@ -38,6 +38,7 @@ namespace Game
 	IW3::XZone* g_zones = reinterpret_cast<IW3::XZone*>(0xFFEFD0);
 	IW3::XAssetEntryPoolEntry* g_assetEntryPool = reinterpret_cast<IW3::XAssetEntryPoolEntry*>(0xF0D640);
 	unsigned short* db_hashTable = reinterpret_cast<unsigned short*>(0xE62A80);
+	IW3::sharedUiInfo_t* sharedUiInfo = reinterpret_cast<IW3::sharedUiInfo_t*>(0x0CAF06D0);
 
 	IW3::infoParm_t* infoParams = reinterpret_cast<Game::IW3::infoParm_t*>(0x71FBD0); // Count 0x1C
 

@@ -74,6 +74,8 @@ namespace Game
 	extern IW3::XAssetEntryPoolEntry* g_assetEntryPool;
 	extern unsigned short* db_hashTable;
 
+	extern IW3::sharedUiInfo_t* sharedUiInfo;
+
 	extern IW3::infoParm_t* infoParams;
 
 	void DB_EnumXAssetEntries(IW3::XAssetType type, std::function<void(IW3::XAssetEntryPoolEntry*)> callback, bool overrides);
