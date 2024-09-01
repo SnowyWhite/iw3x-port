@@ -38,11 +38,15 @@ namespace Components
 
 		for (uint8_t i = 0; i < model->numLods; ++i)
 		{
-#if EXTEND_CULLING
-			xmodel.lodInfo[i].dist = model->lodInfo[i].dist * 1.5f; // LOD distance is increased so that the maps look nicer in iw4
-#else
-			xmodel.lodInfo[i].dist = model->lodInfo[i].dist;
-#endif
+			if (MapDumper::ShouldExtendCulling())
+			{
+				xmodel.lodInfo[i].dist = model->lodInfo[i].dist * 1.5f; // LOD distance is increased so that the maps look nicer in iw4
+			}
+			else 
+			{
+				xmodel.lodInfo[i].dist = model->lodInfo[i].dist;
+			}
+
 			xmodel.lodInfo[i].numsurfs = model->lodInfo[i].numsurfs;
 			xmodel.lodInfo[i].surfIndex = model->lodInfo[i].surfIndex;
 
@@ -57,9 +61,45 @@ namespace Components
 			xmodel.lodInfo[i].smcSubIndexMask = model->lodInfo[i].smcAllocBits;
 			xmodel.lodInfo[i].smcBucket = model->lodInfo[i].unused;
 #else
-			xmodel.lodInfo[i].smcBaseIndexPlusOne = 0;
-			xmodel.lodInfo[i].smcSubIndexMask = 0;
-			xmodel.lodInfo[i].smcBucket = 0;
+			if (model->lodInfo[i].smcIndexPlusOne)
+			{
+				// smcIndex is always between 0 and 5 (included).
+				// On iw3 it's always between 0 and 3
+				// We can use it directly for mw2
+				xmodel.lodInfo[i].smcBaseIndexPlusOne = model->lodInfo[i].smcIndexPlusOne;
+
+				// smcAllocBits is always between 9 and 0 (included). It will use some of the available the buckets of mw2
+				// 9 (512) = bucket 22
+				// 8 (256) = 18
+				// 7 (128) = 13
+				// 6 (64) = 8
+				// 5 (32) = 3
+				// 4 (16) = 0
+				// 3 and under ??
+				int buckets[] = { 0, 0, 0, 0, 0, 3, 8, 13, 18, 22 };
+				int allocBits = static_cast<int>(model->lodInfo[i].smcAllocBits);
+				assert(allocBits >= 0);
+				assert(allocBits < ARRAYSIZE(buckets));
+				xmodel.lodInfo[i].smcBucket = buckets[allocBits];
+
+				xmodel.lodInfo[i].smcSubIndexMask = 0; // As far as I know, this one is unused
+
+				if (xmodel.lodInfo[i].smcBucket > 24 || xmodel.lodInfo[i].smcBucket < 0)
+				{
+					// Impossible
+					xmodel.lodInfo[i].smcBaseIndexPlusOne = 0;
+					xmodel.lodInfo[i].smcBucket = 0;
+					assert(false && "unreachable");
+				}
+			}
+			else
+			{
+				assert(model->lodInfo[i].smcAllocBits == 0);
+
+				xmodel.lodInfo[i].smcBaseIndexPlusOne = 0;
+				xmodel.lodInfo[i].smcSubIndexMask = 0;
+				xmodel.lodInfo[i].smcBucket = 0;
+			}
 #endif
 
 			if (xmodel.lodInfo[i].numsurfs)

@@ -519,9 +519,9 @@ namespace Components
 		for (int i = 0; i < world->materialMemoryCount; i++)
 		{
 			map.materialMemory[i].memory = world->materialMemory[i].memory;
-			map.materialMemory[i].material = AssetHandler::Convert(Game::IW3::ASSET_TYPE_MATERIAL, { world->materialMemory[i].material}).material;
+			map.materialMemory[i].material = AssetHandler::Convert(Game::IW3::ASSET_TYPE_MATERIAL, { world->materialMemory[i].material }).material;
 		}
-		
+
 
 		static_assert(sizeof map.sun == sizeof world->sun);
 		std::memcpy(&map.sun, &world->sun, sizeof map.sun);
@@ -635,10 +635,11 @@ namespace Components
 
 				float iw3CullDist = world->dpvs.smodelDrawInsts[i].cullDist;
 
-#if EXTEND_CULLING
-				// Double cull distance so it looks nicer in iw4
-				iw3CullDist *= 2;
-#endif
+				if (MapDumper::ShouldExtendCulling())
+				{
+					// Double cull distance so it looks nicer in iw4
+					iw3CullDist *= 2;
+				}
 
 				unsigned short iw4CullDist = 0;
 
@@ -658,6 +659,7 @@ namespace Components
 				map.dpvs.smodelDrawInsts[i].lightingHandle = world->dpvs.smodelDrawInsts[i].lightingHandle;
 				map.dpvs.smodelDrawInsts[i].flags = 0;
 
+
 				if (world->dpvs.smodelDrawInsts[i].flags & Game::IW3::STATIC_MODEL_FLAG_NO_SHADOW)
 				{
 					// Confirmed to be the same in the rendering functions
@@ -669,7 +671,7 @@ namespace Components
 					// For some reason while being used in the same place for the same thing AFAIK,
 					// setting this to the "correct value" in iw4 results in blocky smodel shadows!
 					// Unless we keep the iw3 flag in (which should be non existent in iw4!)
-					map.dpvs.smodelDrawInsts[i].flags |= Game::IW3::STATIC_MODEL_FLAG_NO_SHADOW;
+					//map.dpvs.smodelDrawInsts[i].flags |= Game::IW3::STATIC_MODEL_FLAG_NO_SHADOW;
 				}
 
 				if (world->dpvs.smodelInsts)
@@ -693,6 +695,84 @@ namespace Components
 
 						map.dpvs.smodelDrawInsts[i].flags |= Game::IW4::STATIC_MODEL_FLAG_GROUND_LIGHTING;
 					}
+				}
+			}
+
+			// We now do a pass to use IW4's extended cache for the most common items
+			{
+				std::map<Game::IW4::XModel*, unsigned int> smodelsCount{};
+				for (unsigned int i = 0; i < map.dpvs.smodelCount; ++i)
+				{
+					const auto inst = &map.dpvs.smodelDrawInsts[i];
+
+					if (inst->model->numLods <= 0)
+					{
+						// Never happens anyway
+						continue;
+					}
+
+					if (inst->model->lodInfo[0].smcBaseIndexPlusOne > 0 && inst->groundLighting.packed > 0) // We only use sub index with ground lighting
+					{
+						if (!smodelsCount.contains(inst->model))
+						{
+							smodelsCount[inst->model] = 0;
+						}
+
+						smodelsCount[inst->model]++;
+					}
+				}
+
+				std::vector<std::pair<Game::IW4::XModel*, unsigned int> > mostFrequentCachedModels{};
+
+				for (const auto& iterator : smodelsCount) {
+					mostFrequentCachedModels.push_back(iterator);
+				}
+
+				std::sort(mostFrequentCachedModels.begin(), mostFrequentCachedModels.end(), [](auto& a, auto& b) {
+					return a.second > b.second;
+					});
+
+				// We can use up to (1 << 3 - 1) subindices - but in practice it's only up to five, because that's all the slots for smcindex we have in iw4
+				constexpr unsigned char AVAILABLE_SUB_INDICES = 5;
+
+				for (auto& pair : mostFrequentCachedModels) {
+
+					auto xmodel = pair.first;
+					auto instancesCount = pair.second;
+					auto lod = &xmodel->lodInfo[0];
+
+					assert(lod->smcBaseIndexPlusOne);
+
+					lod->smcSubIndexMask = 7;
+
+					unsigned char currentSubIndex = 1;
+					unsigned int maxSubIndexForThisModel = AVAILABLE_SUB_INDICES - (lod->smcBaseIndexPlusOne - 1);
+					unsigned int maxPerSubIndex = instancesCount / maxSubIndexForThisModel;
+
+					unsigned int count = 0;
+					for (size_t smodelIndex = 0; smodelIndex < map.dpvs.smodelCount; smodelIndex++)
+					{
+						if (currentSubIndex > maxSubIndexForThisModel)
+						{
+							break;
+						}
+
+						auto inst = &map.dpvs.smodelDrawInsts[smodelIndex];
+
+						if (inst->model == xmodel)
+						{
+							inst->flags |= (currentSubIndex & Game::IW4::STATIC_MODEL_FLAG_SUB_INDEX_MASK);
+							count++;
+
+							if (count % maxPerSubIndex == 0 && currentSubIndex < maxSubIndexForThisModel)
+							{
+								// We've got quite a lot on this cache already . Let's bump it
+								currentSubIndex++;
+							}
+						}
+					}
+
+					assert(lod->smcBaseIndexPlusOne + currentSubIndex <= 6);
 				}
 			}
 		}
@@ -738,7 +818,7 @@ namespace Components
 		*output = map;
 
 		return output;
-}
+	}
 
 	IGfxWorld::IGfxWorld()
 	{

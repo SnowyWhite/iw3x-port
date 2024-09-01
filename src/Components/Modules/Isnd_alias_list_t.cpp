@@ -143,8 +143,12 @@ namespace Components
 		Command::Add("dumpSound", [](const Command::Params& params)
 			{
 				if (params.Length() < 2) return;
-				auto converted = Isnd_alias_list_t::Convert(Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_SOUND, params[1]).sound);
+				const auto asset = Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_SOUND, params[1]).sound;
+				if (asset)
+				{
+					auto converted = Isnd_alias_list_t::Convert(asset);
 				MapDumper::GetApi()->write(Game::IW4::XAssetType::ASSET_TYPE_SOUND, converted);
+				}
 			});
 	}
 

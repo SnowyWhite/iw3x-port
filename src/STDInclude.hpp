@@ -39,7 +39,6 @@
 #define PC
 #define COD4
 
-#define EXTEND_CULLING 1
 #define LITTERALIZE_SUN 1
 #define DEFAULT_WORK_DIRECTORY "iw3xport_out/default";
 

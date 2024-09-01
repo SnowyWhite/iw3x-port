@@ -11,6 +11,8 @@ namespace Components
 		static int GetZoneIndex();
 		static iw4of::api* GetApi();
 
+		static bool ShouldExtendCulling();
+
 		MapDumper();
 		~MapDumper();
 
