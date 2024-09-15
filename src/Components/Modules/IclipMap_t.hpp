@@ -21,5 +21,6 @@ namespace Components
 		static void AddCarePackagesToMap(Game::IW4::clipMap_t* clipMap);
 		static Game::IW4::SModelAabbNode* BuildSimpleSModelNodes(Game::IW4::clipMap_t* clipMap, unsigned short* size);
 		static void OptimizeClipmap(Game::IW4::clipMap_t* clipMap);
+		static void RaiseCeiling(Game::IW4::clipMap_t* clipMap);
 	};
 }

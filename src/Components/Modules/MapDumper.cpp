@@ -15,8 +15,7 @@ namespace Components
 	{
 		auto shouldExtendCulling = Game::Dvar_FindVar("iw3x_extend_culling");
 		if (shouldExtendCulling && 
-			(shouldExtendCulling->current.string == "1"s || 
-			shouldExtendCulling->current.string == "true"s))
+			shouldExtendCulling->current.string == "1"s)
 		{
 			return true;
 		}

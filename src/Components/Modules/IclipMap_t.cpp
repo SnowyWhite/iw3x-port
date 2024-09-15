@@ -121,6 +121,54 @@ namespace Components
 		}
 	}
 
+	void IclipMap_t::RaiseCeiling(Game::IW4::clipMap_t* clipMap)
+	{
+		// Raising ceilings avoids planes flying _above_ sky where they're impossible to hit
+		// This is not a problem in IW3 because there are no planes... On IW4 it's an issue
+
+		std::vector<unsigned short> brushes{};
+		for (unsigned short i = 0; i < clipMap->numBrushes; i++)
+		{
+			const auto brush = &clipMap->brushes[i];
+
+			// Skybox contents
+			if (clipMap->brushContents[i] == 2048)
+			{
+				brushes.push_back(i); // This is the one that works !  Brushes can be raised just a bit and it'll do the trick
+			}
+		}
+
+		constexpr auto X = 0;
+		constexpr auto Y = 1;
+		constexpr auto Z = 2;
+
+		for(const auto& brushIndex : brushes)
+		{
+			auto brush = &clipMap->brushes[brushIndex];
+			const auto bounds = &clipMap->brushBounds[brushIndex];
+
+			const bool isFlat = bounds->halfSize[Z] < bounds->halfSize[Y] && bounds->halfSize[Z] < bounds->halfSize[X];
+
+			constexpr float CEILING_HEIGHT_REFERENCE = 12000.f; // Favela
+
+			if (isFlat)
+			{
+				// Stretch & raise so that the lowest point is always at the same position
+				float newHeight = std::max(CEILING_HEIGHT_REFERENCE, bounds->midPoint[Z]);
+				float oldHeight = bounds->midPoint[Z];
+				float bonus = (newHeight-oldHeight)/2;
+				
+				bounds->midPoint[Z] = bounds->midPoint[Z] + bonus;
+				bounds->halfSize[Z] = bounds->halfSize[Z] + bonus;
+			}
+			else
+			{
+				// Push ceiling upwards
+				bounds->midPoint[Z] = std::max(CEILING_HEIGHT_REFERENCE, bounds->midPoint[Z]);
+			}
+		}
+	}
+
 	Game::IW4::clipMap_t* IclipMap_t::Convert(const Game::IW3::clipMap_t* clipMap)
 	{
 		if (!clipMap) return nullptr;
@@ -306,7 +354,7 @@ namespace Components
 
 		iw4ClipMap->mapEnts = AssetHandler::Convert(Game::IW3::XAssetType::ASSET_TYPE_MAP_ENTS, { clipMap->mapEnts }).mapEnts;
 
-		iw4ClipMap->smodelNodes =  IclipMap_t::BuildSimpleSModelNodes(iw4ClipMap, &iw4ClipMap->smodelNodeCount);
+		iw4ClipMap->smodelNodes = IclipMap_t::BuildSimpleSModelNodes(iw4ClipMap, &iw4ClipMap->smodelNodeCount);
 
 		std::memcpy(iw4ClipMap->dynEntCount, clipMap->dynEntCount, sizeof(unsigned short) * 2);
 
@@ -347,6 +395,11 @@ namespace Components
 
 
 		COPY_MEMBER(checksum);
+		
+		static const auto raiseCeiling = Game::Dvar_FindVar("iw3x_raise_ceiling");
+		if (raiseCeiling && raiseCeiling->current.string == "1"s) {
+			RaiseCeiling(iw4ClipMap);
+		}
 
 		OptimizeClipmap(iw4ClipMap);
 

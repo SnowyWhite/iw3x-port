@@ -261,6 +261,7 @@ namespace Components
 		sky->skyStartSurfs = world->skyStartSurfs;
 		sky->skySurfCount = world->skySurfCount;
 
+
 		map.lastSunPrimaryLightIndex = world->sunPrimaryLightIndex;
 		map.primaryLightCount = world->primaryLightCount;
 
