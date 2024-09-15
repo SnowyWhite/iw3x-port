@@ -76,7 +76,7 @@ namespace Components
 				// 5 (32) = 3
 				// 4 (16) = 0
 				// 3 and under ??
-				int buckets[] = { 0, 0, 0, 0, 0, 3, 8, 13, 18, 22 };
+				char buckets[] = { 0, 0, 0, 0, 0, 3, 8, 13, 18, 22 };
 				int allocBits = static_cast<int>(model->lodInfo[i].smcAllocBits);
 				assert(allocBits >= 0);
 				assert(allocBits < ARRAYSIZE(buckets));

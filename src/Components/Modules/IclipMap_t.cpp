@@ -129,8 +129,6 @@ namespace Components
 		std::vector<unsigned short> brushes{};
 		for (unsigned short i = 0; i < clipMap->numBrushes; i++)
 		{
-			const auto brush = &clipMap->brushes[i];
-
 			// Skybox contents
 			if (clipMap->brushContents[i] == 2048)
 			{
@@ -144,7 +142,6 @@ namespace Components
 
 		for(const auto& brushIndex : brushes)
 		{
-			auto brush = &clipMap->brushes[brushIndex];
 			const auto bounds = &clipMap->brushBounds[brushIndex];
 
 			const bool isFlat = bounds->halfSize[Z] < bounds->halfSize[Y] && bounds->halfSize[Z] < bounds->halfSize[X];

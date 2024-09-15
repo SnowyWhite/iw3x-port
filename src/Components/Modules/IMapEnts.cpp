@@ -36,7 +36,6 @@ namespace Components
 		bool hasVehicles = mapEnts.ConvertVehicles();
 
 		entString = mapEnts.Build();
-		const auto models = mapEnts.GetModels(hasVehicles); // Add additional models to file
 
 		Game::IW4::MapEnts* iw4Ents = LocalAllocator.Allocate<Game::IW4::MapEnts>();
 
