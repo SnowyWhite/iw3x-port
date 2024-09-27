@@ -176,6 +176,17 @@ namespace Utils
         }
     }
 
+	void Entities::RenameWeapons()
+	{
+		for (auto& entity : this->entities)
+		{
+			if (entity.find("weaponinfo") != entity.end())
+			{
+				entity["weaponinfo"] = std::format("iw3_{}", entity["weaponinfo"]);
+			}
+		}
+	}
+
 	bool Entities::ConvertTurrets()
 	{
 		bool hasTurrets = false;

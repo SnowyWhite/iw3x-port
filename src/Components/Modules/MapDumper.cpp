@@ -342,7 +342,7 @@ namespace Components
 						auto iw3Type = kv.first;
 						std::string nameToFind = name;
 
-						if (iw3Type == Game::IW3::ASSET_TYPE_WEAPON)
+						if (iw3Type == Game::IW3::ASSET_TYPE_WEAPON && nameToFind.starts_with("iw3_"))
 						{
 							// Fix weapon name
 							nameToFind = name.substr(4); // Remove iw3_ prefix while seeking

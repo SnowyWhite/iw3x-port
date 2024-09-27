@@ -32,6 +32,10 @@ namespace Components
 				Utils::WriteFile(Utils::VA("%s/HAS_MINIGUN", AssetHandler::GetExportPath().data()), "\0");
 			}
 		}
+		else
+		{
+			mapEnts.RenameWeapons();
+		}
 
 		bool hasVehicles = mapEnts.ConvertVehicles();
 

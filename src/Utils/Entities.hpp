@@ -17,6 +17,7 @@ namespace Utils
 		bool ConvertTurrets();
 		bool ConvertVehicles();
 		void AddCarePackages();
+		void RenameWeapons();
 		void AddRemovedSModels();
 
 	private:
