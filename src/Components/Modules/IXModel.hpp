@@ -72,6 +72,8 @@ namespace Components
 
 		static Game::IW4::XModel* Convert(Game::IW3::XModel* model);
 
+		static void AddMissingViewHandsTag(Game::IW4::XModel* model);
+
 		static void AddShieldHitLocation(Game::IW4::XModel* model);
 
 		static void AddMissingMultiplayerModelBones(Game::IW4::XModel* model);

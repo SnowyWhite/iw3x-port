@@ -42,7 +42,7 @@ namespace Components
 			{
 				xmodel.lodInfo[i].dist = model->lodInfo[i].dist * 1.5f; // LOD distance is increased so that the maps look nicer in iw4
 			}
-			else 
+			else
 			{
 				xmodel.lodInfo[i].dist = model->lodInfo[i].dist;
 			}
@@ -303,6 +303,7 @@ namespace Components
 			xmodel.physCollmap = nullptr;
 		}
 
+		AddMissingViewHandsTag(&xmodel);
 		AddMissingMultiplayerModelBones(&xmodel);
 		AddShieldHitLocation(&xmodel);
 
@@ -310,6 +311,31 @@ namespace Components
 		*xmodelPtr = xmodel;
 
 		return xmodelPtr;
+	}
+
+	void IXModel::AddMissingViewHandsTag(Game::IW4::XModel* model)
+	{
+		{
+			const auto leftWrist = GetIndexOfBone(model, "j_wrist_le");
+			const auto tagWeapon = GetIndexOfBone(model, "tag_weapon");
+			if (leftWrist != UCHAR_MAX && tagWeapon != UCHAR_MAX)
+			{
+				if (GetIndexOfBone(model, "tag_weapon_left") == UCHAR_MAX)
+				{
+					// Missing tag_weapon_left, this will cause issues in IW4!
+					const auto weaponLeft = InsertBone(model, "tag_weapon_left", "j_wrist_le", LocalAllocator);
+
+					// "bad values" (this might not be important)
+					SetBoneTrans(model, weaponLeft, false, 0.0f, 0.f, 0.f);
+					SetBoneQuaternion(model, weaponLeft, false, 0.f, 0.0f, 0.f, 0.f);
+					
+					SetBoneTrans(model, weaponLeft, true, 0.0f, 0.f, 0.f);
+					SetBoneQuaternion(model, weaponLeft, true, 0.f, 0.0f, 0.f, 0.f);
+
+					RebuildPartBits(model);
+				}
+			}
+		}
 	}
 
 	void IXModel::AddShieldHitLocation(Game::IW4::XModel* model)
