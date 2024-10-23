@@ -587,7 +587,7 @@ namespace Components
 
 		if (vs->prog.loadDef.loadForRenderer == Game::IW3::GfxRenderer::GFX_RENDERER_SHADER_2)
 		{
-			Logger::Print("Not exporting vertex shader %s because they're targeting a SM2 renderer which iw4 does not have!", vs->name);
+			Logger::Print("Not exporting vertex shader %s because they're targeting a SM2 renderer which iw4 does not have!\n", vs->name);
 			return nullptr;
 		}
 
@@ -608,7 +608,7 @@ namespace Components
 
 		if (ps->prog.loadDef.loadForRenderer == Game::IW3::GfxRenderer::GFX_RENDERER_SHADER_2)
 		{
-			Logger::Print("Not exporting pixel shader %s because they're targeting a SM2 renderer which iw4 does not have!", ps->name);
+			Logger::Print("Not exporting pixel shader %s because they're targeting a SM2 renderer which iw4 does not have!\n", ps->name);
 			return nullptr;
 		}
 
@@ -709,8 +709,34 @@ namespace Components
 		Command::Add("dumpTechset", [](const Command::Params& params)
 			{
 				if (params.Length() < 2) return;
-				auto converted = IMaterialTechniqueSet::Convert(Game::DB_FindXAssetHeader(Game::IW3::XAssetType::ASSET_TYPE_TECHNIQUE_SET, params[1]).techniqueSet);
-				MapDumper::GetApi()->write(Game::IW4::XAssetType::ASSET_TYPE_TECHNIQUE_SET, converted);
+
+				const auto n = params[1];
+
+				if ("*"s == n)
+				{
+					std::vector<std::string> names{};
+
+					Game::DB_EnumXAssetEntries(Game::IW3::XAssetType::ASSET_TYPE_TECHNIQUE_SET, [&](Game::IW3::XAssetEntryPoolEntry* poolEntry) {
+						if (poolEntry)
+						{
+							auto entry = &poolEntry->entry;
+							std::string name = entry->asset.header.techniqueSet->name;
+
+							names.emplace_back(name);
+						}
+						}, false);
+
+					for (const auto& name : names)
+					{
+						Game::IW3::XAssetHeader entry{};
+						entry = Game::DB_FindXAssetEntry(Game::IW3::XAssetType::ASSET_TYPE_TECHNIQUE_SET, name.data())->entry.asset.header;
+
+						auto converted = IMaterialTechniqueSet::Convert(entry.techniqueSet);
+						MapDumper::GetApi()->write(Game::IW4::ASSET_TYPE_TECHNIQUE_SET, converted);
+
+					}
+				}
+				
 			});
 	}
 

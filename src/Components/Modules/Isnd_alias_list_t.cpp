@@ -69,6 +69,7 @@ namespace Components
 			iw4Alias->centerPercentage = iw3Alias->centerPercentage;
 			iw4Alias->chainAliasName = iw3Alias->chainAliasName;
 			iw4Alias->distMin = iw3Alias->distMin;
+			iw4Alias->distMax = iw3Alias->distMax;
 			iw4Alias->envelopMax = iw3Alias->envelopMax;
 			iw4Alias->envelopMin = iw3Alias->envelopMin;
 			iw4Alias->envelopPercentage = iw3Alias->envelopPercentage;

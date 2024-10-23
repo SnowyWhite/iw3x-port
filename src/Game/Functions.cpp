@@ -79,7 +79,7 @@ namespace Game
 				} while (hashIndex);
 			}
 			++index;
-		} while (index < 0x10000);
+		} while (index < 32768); /// size of db_hashtable is 32768 (65536 bytes)
 		InterlockedDecrement(lock);
 	}
 
