@@ -37,7 +37,7 @@ namespace Components
 			mapEnts.RenameWeapons();
 		}
 
-		bool hasVehicles = mapEnts.ConvertVehicles();
+		mapEnts.ConvertVehicles();
 
 		entString = mapEnts.Build();
 
