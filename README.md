@@ -10,21 +10,35 @@ The built-in `ZoneBuilder` tool from `IW4x` can build new assets based on the mo
 2. Start `IW3x-port`, it will open up the console window of `IW3`.
 3. Run the commands for the assets you wish to export.
 
-> [!IMPORTANT]
-> Before you can export any asset, it first has to be loaded by the game.  
-> Use `loadzone <zone_name>` command first, and then use the commands for assets you want to export.  
-> For example, to export the `M14 Sniper`:  
-> `loadzone scoutsniper`  
-> `dumpweapon m14_scoped_silencer_woodland`  
-> Another Example:  
-> `loadzone mp_backlot`  
-> `dumpmaterial headicon_american`
-
 Another approach is to use it in the terminal.  
 This way, you can specify start parameters, for example to set certain dvars.  
 Run `iw3xport.exe -stdout` to redirect the output into the terminal.
 
-Example: `iw3xport.exe -stdout +set iw3x_correct_speculars 1 +set iw3x_convert_gsc 1 +set iw3x_smodels_fix_method 2 +set iw3x_add_care_packages 1 +set export_path mods\airlift +dumpmap airlift`
+> [!IMPORTANT]
+> Before you can export any asset, it first has to be loaded by the game.  
+> Use `loadzone <zone_name>` command first, and then use the commands for the assets you want to export.  
+
+### Examples
+
+To export the `M14 Sniper`:  
+
+```shell
+loadzone scoutsniper
+dumpweapon m14_scoped_silencer_woodland
+```
+
+To export the head icon of the `Marines Team`:  
+
+```shell
+loadzone mp_backlot
+dumpmaterial headicon_american
+```
+
+Example of how to use it in the terminal, with additional parameters:
+
+```shell
+iw3xport.exe -stdout +set iw3x_correct_speculars 1 +set iw3x_convert_gsc 1 +set iw3x_smodels_fix_method 2 +set iw3x_add_care_packages 1 +set export_path mods\airlift +dumpmap airlift
+```
 
 ## Commands
 
@@ -41,10 +55,10 @@ Example: `iw3xport.exe -stdout +set iw3x_correct_speculars 1 +set iw3x_convert_g
 `dumpGfxLightDef`     | Exports the Lights of a map                                         | Needs an Example |
 `dumpGfxWorld`        | Exports the GfxWorld of a map                                       | Needs an Example |
 `dumpMapEnts`         | Exports the Entities of a map                                       | Needs an Example |
-`dumpMaterial`        | Exports the Materials of a map                                      | Loadscreen: `dumpMaterial $levelbriefing` Compass: `dumpMaterial compass_map_bog` |
+`dumpMaterial`        | Exports the Materials of a map                                      | Loadscreen: `dumpMaterial $levelbriefing`<br>Compass: `dumpMaterial compass_map_bog` |
 `dumpTeams`           | Exports all Teams                                                   | `dumpTeams` |
 `dumpTechset`         | Exports a TechSet                                                   | Needs an Example |
-`dumpRawFile`         | Exports Vision Files, Sun and GSC scripts  of a Map                 | `dumpRawFile sun/map_bog.sun`                       `dumpRawFile vision/map_bog.vision`                       `dumpRawFile maps/mp/mp_bog.gsc` |
+`dumpRawFile`         | Exports Vision Files, Sun and GSC scripts  of a Map                 | `dumpRawFile sun/map_bog.sun`<br>`dumpRawFile vision/map_bog.vision`<br>`dumpRawFile maps/mp/mp_bog.gsc` |
 `dumpSound`           | Exports a Sound                                                     | `dumpsound ambient_village_assault_ext0` (needs testing...) |
 `dumpWeapon`          | Exports a Weapon                                                    | `dumpweapon m14_scoped_silencer_woodland` | 
 `dumpXAnimParts`      | Exports an Animation for a Model                                    | Needs an Example |
