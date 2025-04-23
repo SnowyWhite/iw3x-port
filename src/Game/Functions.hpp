@@ -77,6 +77,8 @@ namespace Game
 	extern IW3::sharedUiInfo_t* sharedUiInfo;
 
 	extern IW3::infoParm_t* infoParams;
+	
+	extern IW3::cgMedia_t* cgMedia;
 
 	void DB_EnumXAssetEntries(IW3::XAssetType type, std::function<void(IW3::XAssetEntryPoolEntry*)> callback, bool overrides);
 	void Cmd_AddCommand(const char* name, void(*callback)(), cmd_function_s* data, char);

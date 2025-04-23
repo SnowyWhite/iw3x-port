@@ -42,6 +42,8 @@ namespace Game
 
 	IW3::infoParm_t* infoParams = reinterpret_cast<Game::IW3::infoParm_t*>(0x71FBD0); // Count 0x1C
 
+	IW3::cgMedia_t* cgMedia = reinterpret_cast<Game::IW3::cgMedia_t*>(0x84CB30);
+
 	void DB_EnumXAssetEntries(IW3::XAssetType type, std::function<void(IW3::XAssetEntryPoolEntry*)> callback, bool overrides)
 	{
 		volatile long* lock = reinterpret_cast<volatile long*>(0x10D01A4);
