@@ -13,18 +13,18 @@ namespace Components
 		ILoadedSound::availableSoundDatas.insert({ std::string(loadedSound->name), soundCopy });
 	}
 
-	void ILoadedSound::Load(Game::IW3::LoadedSound* loadedSound)
+	char* ILoadedSound::GetLoadedSoundData(const Game::IW3::LoadedSound* loadedSound)
 	{
 		auto savedSound = ILoadedSound::availableSoundDatas.find(loadedSound->name);
 		if (savedSound == ILoadedSound::availableSoundDatas.end())
 		{
 			Components::Logger::Error("Tried to save sound %s which was never loaded before!\n", loadedSound->name);
-			return;
+			return nullptr;
 		}
 
 		char* soundData = ILoadedSound::availableSoundDatas[loadedSound->name];
 
-		loadedSound->sound.data = soundData;
+		return soundData;
 	}
 
 
