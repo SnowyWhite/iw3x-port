@@ -20,7 +20,7 @@ namespace Components
 		}
 	}
 
-	int QuickPatch::SND_SetDataHook(Game::IW3::MssSound*, char*)
+	void QuickPatch::SND_SetDataHook(Game::IW3::MssSound* sound, char* data)
 	{
 		Game::IW3::LoadedSound*** loadedSoundPtr = reinterpret_cast<Game::IW3::LoadedSound***>(0xE34780);
 		auto loadedSound = *(*(loadedSoundPtr));
@@ -28,9 +28,15 @@ namespace Components
 		// We do not dump rightaway, we'll do so when we need to because of soundaliases
 		Components::ILoadedSound::DuplicateSoundData(loadedSound);
 
+		Game::IW3::MssSound infoCopy = *sound;
+
 		// Do not call this or the sounds will actually get loaded
-		//return Utils::Hook::Call<int(Game::IW3::MssSound*, char*)>(0x5C8EE0)(sound, data);
-		return 0;
+		Utils::Hook::Call<int(Game::IW3::MssSound*, char*)>(0x5C8EE0)(sound, data);
+
+		sound->info.rate = infoCopy.info.rate;
+		sound->info.data_len = infoCopy.info.data_len;
+		sound->info.samples = infoCopy.info.samples;
+		return;
 	}
 
 	Game::IW3::XAssetHeader ReallocateAssetPool(Game::IW3::XAssetType type, unsigned int newSize)
@@ -99,11 +105,6 @@ namespace Components
 
 		// Do not void the vertex declaration on loading
 		Utils::Hook::Nop(0x47B466, 5);
-
-#if !DEBUG
-		// Do not unload overriden assets - it works in DEBUG, but in RELEASE mode it crashes, and i don't know why.
-		Utils::Hook::Set<BYTE>(0x48AEA9, 0xEB);
-#endif
 
 		// Intercept SND_SetData
 		Utils::Hook(0x4794C2, QuickPatch::SND_SetDataHook, HOOK_CALL).install()->quick();
