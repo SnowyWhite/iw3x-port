@@ -2,7 +2,7 @@
 
 `IW3x-port` is a community-driven project that enhances the [IW4x](https://github.com/iw4x/iw4x-client) multiplayer experience by making it possible to export and convert assets from [Call of Duty: Modern Warfare (2007)](https://store.steampowered.com/app/7940/Call_of_Duty_4_Modern_Warfare_2007).
 
-The built-in `ZoneBuilder` tool of `IW4x` can use the models, materials, zones, and other content exported by `IW3x-port` to convert them into new assets for `IW4x`.
+The built-in `ZoneBuilder` tool of `IW4x` can use models, materials, zones, and other content exported by `IW3x-port` to convert them into new assets for `IW4x`.
 
 ## How To Use
 
